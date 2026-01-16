@@ -12,6 +12,7 @@ import com.ailuoku6.kuiklyKisstate.kisstate
 import com.ailuoku6.kuiklyKisstate.kisstateList
 import com.ailuoku6.kuiklyKisstate.watch
 import com.tencent.kuikly.core.directives.vfor
+import com.tencent.kuikly.core.directives.vif
 
 class Counter {
     var count by kisstate(0)
@@ -49,6 +50,13 @@ internal class RouterPage : BasePager() {
                         text("count: ${counter.count}")
                     }
                 }
+                vif({counter.count > 3}){
+                    Text {
+                        attr {
+                            text("count more than 3!!")
+                        }
+                    }
+                }
                 Text {
                     attr {
                         text("double count: ${ctx.doudleCount}")
@@ -64,14 +72,31 @@ internal class RouterPage : BasePager() {
                 Button {
                     attr {
                         titleAttr {
-                            text("add")
+                            text("add count")
                         }
+                        height(30f)
+                        backgroundColor(Color.GREEN)
+                    }
+
+                    event {
+                        click {
+                            counter.count ++;
+                        }
+                    }
+                }
+
+                Button {
+                    attr {
+                        titleAttr {
+                            text("add list")
+                        }
+                        height(30f)
+                        backgroundColor(Color.GREEN)
                     }
 
                     event {
                         click {
                             counter.list.add("item: ${counter.count}")
-                            counter.count ++;
                         }
                     }
                 }
@@ -92,14 +117,23 @@ internal class RouterPage : BasePager() {
     }
 
     fun initEffect() {
+        // 监听kisstate
         watch(kisContext, { counter.count }) { newV, preV ->
             println("kissLog count change: ${newV}")
         }
+        // 监听kisstateList
         watch(kisContext, { counter.list }){ newV, preV ->
             println("kissLog list change: ${newV}")
         }
+        // 监听computed值
         watch(kisContext, { doudleCount }){ newV, preV ->
             println("kissLog doudleCount change: ${newV}")
+        }
+        // 监听多个变量
+        watch(kisContext, {
+            listOf(counter.count ,counter.list)
+        }) { newV, preV ->
+            println("kissLog count or list change: ${newV}")
         }
     }
 

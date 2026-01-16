@@ -268,7 +268,7 @@ class Watch<T>(
         DepContext.popTarget()
 
         // KissListProxy实例不会变，所以加个逻辑绕过比较
-        if (newValue != oldValue || newValue is KissListProxy<*>) {
+        if (newValue !== oldValue || newValue is KissListProxy<*>) {
             callback(newValue, oldValue!!)
             oldValue = newValue
         }
