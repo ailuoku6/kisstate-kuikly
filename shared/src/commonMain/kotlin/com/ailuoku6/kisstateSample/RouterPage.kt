@@ -96,7 +96,7 @@ internal class RouterPage : BasePager() {
 
                     event {
                         click {
-                            counter.list.add("item: ${counter.count}")
+                            counter.list.add("item: ${counter.list.size}")
                         }
                     }
                 }
