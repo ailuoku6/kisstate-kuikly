@@ -3,7 +3,7 @@ plugins {
     kotlin("native.cocoapods")
     id("com.android.library")
     id("maven-publish")
-//    signing
+    signing
 }
 
 val KEY_PAGE_NAME = "pageName"
@@ -82,7 +82,7 @@ kotlin {
 
 /* ---------- Android 配置 ---------- */
 android {
-    namespace = "com.ailuoku6.kisstate.core"
+    namespace = "io.github.ailuoku6"
     compileSdk = 34
     defaultConfig {
         minSdk = 21
@@ -90,22 +90,65 @@ android {
 }
 
 /* ---------- Publishing ---------- */
-group = "com.ailuoku6.kisstate"
+group = "io.github.ailuoku6"
 version = System.getenv("kuiklyBizVersion") ?: "1.0.0"
 
 publishing {
+    publications {
+        withType<MavenPublication>().configureEach {
+            pom {
+                name.set("kisstate")
+                description.set("A lightweight reactive state management library for Kuikly")
+                url.set("https://github.com/ailuoku6/kisstate-kuikly")
+
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("ailuoku6")
+                        name.set("ailuoku6")
+                        email.set("ailuoku6@qq.com")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:https://github.com/ailuoku6/kisstate-kuikly.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:ailuoku6/kisstate.git")
+                    url.set("https://github.com/ailuoku6/kisstate-kuikly")
+                }
+            }
+        }
+    }
+
     repositories {
         maven {
+            name = "sonatype"
+            url = uri(
+                if (version.toString().endsWith("SNAPSHOT"))
+                    "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                else
+                    "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            )
+
             credentials {
-                username = System.getenv("mavenUserName") ?: ""
-                password = System.getenv("mavenPassword") ?: ""
-            }
-            rootProject.properties["mavenUrl"]?.toString()?.let {
-                url = uri(it)
+                username = findProperty("sonatypeUsername") as String?
+                password = findProperty("sonatypePassword") as String?
             }
         }
     }
 }
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications)
+}
+
+
 
 /* ---------- Utils ---------- */
 fun getPageName(): String {
