@@ -6,7 +6,7 @@ plugins {
     signing
 }
 
-val KEY_PAGE_NAME = "pageName"
+//val KEY_PAGE_NAME = "pageName"
 
 kotlin {
 
@@ -139,18 +139,29 @@ publishing {
                 username = findProperty("sonatypeUsername") as String?
                 password = findProperty("sonatypePassword") as String?
             }
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
         }
     }
 }
 
 signing {
-    useGpgCmd()
+    val keyId = findProperty("signing.keyId") as String?
+    val key = findProperty("signing.key") as String?
+    val password = findProperty("signing.password") as String?
+
+    check(keyId != null) { "signing.keyId not found" }
+    check(key != null) { "signing.key not found" }
+    check(password != null) { "signing.password not found" }
+
+    useInMemoryPgpKeys(keyId, key, password)
     sign(publishing.publications)
 }
 
 
 
 /* ---------- Utils ---------- */
-fun getPageName(): String {
-    return (project.properties[KEY_PAGE_NAME] as? String) ?: ""
-}
+//fun getPageName(): String {
+//    return (project.properties[KEY_PAGE_NAME] as? String) ?: ""
+//}
