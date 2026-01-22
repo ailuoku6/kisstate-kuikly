@@ -91,7 +91,11 @@ android {
 
 /* ---------- Publishing ---------- */
 group = "io.github.ailuoku6.kisstate"
-version = System.getenv("kuiklyBizVersion") ?: "1.0.0"
+version = System.getenv("kuiklyBizVersion") ?: "1.0.1"
+
+base {
+    archivesName.set("kisstate")
+}
 
 publishing {
     publications {
