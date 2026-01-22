@@ -45,7 +45,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 compileOnly("com.tencent.kuikly-open:core:${Version.getKuiklyVersion()}")
-                compileOnly("com.tencent.kuikly-open:core-annotations:${Version.getKuiklyVersion()}")
+//                compileOnly("com.tencent.kuikly-open:core-annotations:${Version.getKuiklyVersion()}")
             }
         }
         val commonTest by getting {
@@ -82,7 +82,7 @@ kotlin {
 
 /* ---------- Android 配置 ---------- */
 android {
-    namespace = "io.github.ailuoku6"
+    namespace = "io.github.ailuoku6.kisstate"
     compileSdk = 34
     defaultConfig {
         minSdk = 21
@@ -90,7 +90,7 @@ android {
 }
 
 /* ---------- Publishing ---------- */
-group = "io.github.ailuoku6"
+group = "io.github.ailuoku6.kisstate"
 version = System.getenv("kuiklyBizVersion") ?: "1.0.0"
 
 publishing {
@@ -127,13 +127,15 @@ publishing {
 
     repositories {
         maven {
-            name = "sonatype"
-            url = uri(
-                if (version.toString().endsWith("SNAPSHOT"))
-                    "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                else
-                    "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            )
+//            name = "sonatype"
+//            url = uri(
+//                if (version.toString().endsWith("SNAPSHOT"))
+//                    "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+//                else
+//                    "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//            )
+            name = "ossrh-staging-api"
+            url = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
 
             credentials {
                 username = findProperty("sonatypeUsername") as String?
@@ -159,9 +161,3 @@ signing {
     sign(publishing.publications)
 }
 
-
-
-/* ---------- Utils ---------- */
-//fun getPageName(): String {
-//    return (project.properties[KEY_PAGE_NAME] as? String) ?: ""
-//}
