@@ -39,7 +39,7 @@
 ## 安装 📦
 
 ```kotlin
-implementation("io.github.ailuoku6.kisstate:lib:1.0.2")
+implementation("io.github.ailuoku6.kisstate:lib:1.0.3")
 ```
 
 > 版本号以实际发布为准

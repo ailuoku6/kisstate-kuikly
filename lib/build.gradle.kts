@@ -21,6 +21,7 @@ kotlin {
                 jvmTarget = "1.8"
             }
         }
+        publishLibraryVariants("release")
     }
 
     /* ---------- iOS ---------- */
@@ -95,11 +96,11 @@ android {
 
 /* ---------- Publishing ---------- */
 group = "io.github.ailuoku6.kisstate"
-version = System.getenv("kuiklyBizVersion") ?: "1.0.2"
+version = System.getenv("kuiklyBizVersion") ?: "1.0.3"
 
-base {
-    archivesName.set("kisstate")
-}
+//base {
+//    archivesName.set("kisstate")
+//}
 
 publishing {
     publications {
