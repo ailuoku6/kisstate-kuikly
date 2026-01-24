@@ -1,3 +1,5 @@
+import java.util.Base64
+
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -7,6 +9,8 @@ plugins {
 }
 
 //val KEY_PAGE_NAME = "pageName"
+
+val namespace = "io.github.ailuoku6"
 
 kotlin {
 
@@ -91,7 +95,7 @@ android {
 
 /* ---------- Publishing ---------- */
 group = "io.github.ailuoku6.kisstate"
-version = System.getenv("kuiklyBizVersion") ?: "1.0.1"
+version = System.getenv("kuiklyBizVersion") ?: "1.0.2"
 
 base {
     archivesName.set("kisstate")
@@ -131,13 +135,6 @@ publishing {
 
     repositories {
         maven {
-//            name = "sonatype"
-//            url = uri(
-//                if (version.toString().endsWith("SNAPSHOT"))
-//                    "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-//                else
-//                    "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-//            )
             name = "ossrh-staging-api"
             url = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
 
@@ -150,6 +147,79 @@ publishing {
             }
         }
     }
+}
+
+tasks.register<Exec>("uploadToCentralPortal") {
+    group = "publishing"
+    description = "Notify Central Portal that maven-publish upload is complete"
+
+    val username = findProperty("sonatypeUsername") as String
+    val password = findProperty("sonatypePassword") as String
+
+    val auth = Base64.getEncoder()
+        .encodeToString("$username:$password".toByteArray())
+
+    commandLine(
+        "curl",
+        "-X", "POST",
+        "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/$namespace",
+        "-H", "Authorization: Bearer $auth",
+        "-H", "Content-Type: application/json"
+    )
+}
+
+tasks.named("publish") {
+    finalizedBy("uploadToCentralPortal")
+}
+
+tasks.register<Exec>("dropCentralStagingRepositories") {
+    group = "publishing"
+    description = "Drop all OSSRH staging repositories for current IP"
+
+    val username = findProperty("sonatypeUsername") as String
+    val password = findProperty("sonatypePassword") as String
+
+    val auth = Base64.getEncoder()
+        .encodeToString("$username:$password".toByteArray())
+
+    commandLine(
+        "bash", "-c", """
+        set -e
+        
+        REPOS=${'$'}(curl -s \
+          "https://ossrh-staging-api.central.sonatype.com/manual/search/repositories?profile_id=$namespace&ip=client" \
+          -H "Authorization: Bearer $auth" \
+          | jq -r '.repositories[].key')
+        
+        for repo in ${'$'}REPOS; do
+          echo "Dropping repository: ${'$'}repo"
+          curl -X DELETE \
+            "https://ossrh-staging-api.central.sonatype.com/manual/drop/repository/${'$'}repo" \
+            -H "Authorization: Bearer $auth"
+        done
+        """.trimIndent()
+    )
+}
+
+tasks.register<Exec>("searchCentralStagingRepositories") {
+    group = "publishing"
+    description = "Search OSSRH staging repositories for current IP"
+
+    val username = findProperty("sonatypeUsername") as String
+    val password = findProperty("sonatypePassword") as String
+
+    val auth = Base64.getEncoder()
+        .encodeToString("$username:$password".toByteArray())
+
+    commandLine(
+        "curl",
+        "-s",
+        "-X", "GET",
+        "https://ossrh-staging-api.central.sonatype.com/manual/search/repositories" +
+                "?profile_id=$namespace&ip=client",
+        "-H", "Authorization: Bearer $auth",
+        "-H", "Accept: application/json"
+    )
 }
 
 signing {

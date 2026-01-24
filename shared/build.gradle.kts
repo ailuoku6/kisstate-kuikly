@@ -61,6 +61,7 @@ kotlin {
                 implementation("com.tencent.kuikly-open:core:${Version.getKuiklyVersion()}")
                 implementation("com.tencent.kuikly-open:core-annotations:${Version.getKuiklyVersion()}")
                 implementation(project(":lib"))
+//                implementation("io.github.ailuoku6.kisstate:kisstate:1.0.1")
             }
         }
         val commonTest by getting {
