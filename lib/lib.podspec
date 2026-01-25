@@ -4,7 +4,7 @@ Pod::Spec.new do |spec|
     spec.homepage                 = 'Link to the Shared Module homepage'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
-    spec.license                  = ''
+    spec.license                  = 'MIT'
     spec.summary                  = 'kisstate Module'
     spec.vendored_frameworks      = 'build/cocoapods/framework/kisstate.framework'
     spec.libraries                = 'c++'
@@ -50,5 +50,5 @@ Pod::Spec.new do |spec|
             SCRIPT
         }
     ]
-                
+    spec.resources = ['src/commonMain/assets/**']
 end

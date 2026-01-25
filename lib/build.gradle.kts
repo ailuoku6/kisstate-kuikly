@@ -1,16 +1,26 @@
+import com.tencent.kuikly.gradle.config.KuiklyConfig
 import java.util.Base64
 
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
+    id("com.google.devtools.ksp")
     id("maven-publish")
+//    id("com.tencent.kuikly-open.kuikly")
     signing
 }
 
-//val KEY_PAGE_NAME = "pageName"
-
+val KEY_PAGE_NAME = "pageName"
 val namespace = "io.github.ailuoku6"
+
+/* ---------- Publishing ---------- */
+group = "io.github.ailuoku6.kisstate"
+version = System.getenv("kuiklyBizVersion") ?: "1.0.7"
+
+fun getPageName(): String {
+    return (project.properties[KEY_PAGE_NAME] as? String) ?: ""
+}
 
 kotlin {
 
@@ -31,7 +41,18 @@ kotlin {
 
     /* ---------- JS ---------- */
     js(IR) {
-        browser()
+//        browser()
+        browser {
+            webpackTask {
+                outputFileName = "nativevue2.js" // 最后输出的名字
+            }
+
+            commonWebpackConfig {
+                output?.library = null // 不导出全局对象，只导出必要的入口函数
+                devtool = "source-map" // 不使用默认的 eval 执行方式构建出 source-map，而是构建单独的 sourceMap 文件
+            }
+        }
+        binaries.executable() //将kotlin.js与kotlin代码打包成一份可直接运行的js文件
     }
 
     cocoapods {
@@ -43,7 +64,10 @@ kotlin {
         framework {
             baseName = "kisstate"
             isStatic = true
+            freeCompilerArgs = freeCompilerArgs + getCommonCompilerArgs()
+            license = "MIT"
         }
+        extraSpecAttributes["resources"] = "['src/commonMain/assets/**']"
     }
 
     sourceSets {
@@ -84,23 +108,6 @@ kotlin {
         }
     }
 }
-
-/* ---------- Android 配置 ---------- */
-android {
-    namespace = "io.github.ailuoku6.kisstate"
-    compileSdk = 34
-    defaultConfig {
-        minSdk = 21
-    }
-}
-
-/* ---------- Publishing ---------- */
-group = "io.github.ailuoku6.kisstate"
-version = System.getenv("kuiklyBizVersion") ?: "1.0.3"
-
-//base {
-//    archivesName.set("kisstate")
-//}
 
 publishing {
     publications {
@@ -148,6 +155,51 @@ publishing {
             }
         }
     }
+}
+
+ksp {
+    arg("enableMultiModule","true")
+    arg("isMainModule", "false")
+}
+
+dependencies {
+    compileOnly("com.tencent.kuikly-open:core-ksp:${Version.getKuiklyVersion()}") {
+        add("kspAndroid", this)
+        add("kspIosArm64", this)
+        add("kspIosX64", this)
+        add("kspIosSimulatorArm64", this)
+        add("kspJs", this)
+    }
+}
+
+/* ---------- Android 配置 ---------- */
+android {
+    namespace = "io.github.ailuoku6.kisstate"
+    compileSdk = 34
+    defaultConfig {
+        minSdk = 21
+    }
+}
+
+// Kuikly 插件配置
+//configure<KuiklyConfig> {
+//    // JS 产物配置
+//    js {
+//        // 构建产物名，与 KMM 插件 webpackTask#outputFileName 一致
+//        outputName("nativevue2")
+//        // 可选：分包构建时的页面列表，如果为空则构建全部页面
+//        // addSplitPage("route","home")
+//    }
+//}
+
+fun getCommonCompilerArgs(): List<String> {
+    return listOf(
+        "-Xallocator=std"
+    )
+}
+
+fun getLinkerArgs(): List<String> {
+    return listOf()
 }
 
 tasks.register<Exec>("uploadToCentralPortal") {
