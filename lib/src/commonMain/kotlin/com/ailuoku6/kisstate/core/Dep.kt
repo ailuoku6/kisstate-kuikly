@@ -1,5 +1,7 @@
 package com.ailuoku6.kuiklyKisstate.core
 
+import com.ailuoku6.kisstate.core.scheduler
+
 internal object DepContext {
     var target: Watcher? = null
     val targetStack = mutableListOf<Watcher>()
@@ -29,7 +31,10 @@ class Dep {
     fun notifyChange() {
         // Copy to avoid ConcurrentModificationException if update triggers dependency changes
         val subs = subscribers.toList()
-        subs.forEach { it.update() }
+        subs.forEach { watcher ->
+            scheduler.addWatcher(watcher)
+        }
+
     }
 
     fun removeSub(watcher: Watcher) {
