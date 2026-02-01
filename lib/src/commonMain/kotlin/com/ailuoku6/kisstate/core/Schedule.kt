@@ -50,6 +50,7 @@ class Scheduler {
         val tasks = queue.toList()
 
         queue.clear()
+        taskMap.clear()
         hasNextConsumer = false
 
         for (task in tasks) {
