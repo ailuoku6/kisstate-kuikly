@@ -34,6 +34,27 @@ internal class RouterPage : BasePager() {
         counter.list.size
     }
 
+    fun initEffect() {
+        // 监听kisstate
+        watch(kisContext, { counter.count }) { newV, preV ->
+            println("kissLog count change: ${newV}, ${preV}")
+        }
+        // 监听kisstateList
+        watch(kisContext, { counter.list }){ newV, preV ->
+            println("kissLog list change: ${newV}")
+        }
+        // 监听computed值
+        watch(kisContext, { doudleCount }){ newV, preV ->
+            println("kissLog doudleCount change: ${newV}")
+        }
+        // 监听多个变量
+        watch(kisContext, {
+            listOf(counter.count ,counter.list)
+        }) { newV, preV ->
+            println("kissLog count or list change: ${newV}")
+        }
+    }
+
     override fun body(): ViewBuilder {
         val ctx = this
         return {
@@ -81,6 +102,24 @@ internal class RouterPage : BasePager() {
                     event {
                         click {
                             counter.count ++;
+                            counter.count ++;
+                        }
+                    }
+                }
+
+                Button {
+                    attr {
+                        titleAttr {
+                            text("add count and list")
+                        }
+                        height(30f)
+                        backgroundColor(Color.GREEN)
+                    }
+
+                    event {
+                        click {
+                            counter.count ++;
+                            counter.list.add("item: ${counter.list.size}")
                         }
                     }
                 }
@@ -114,27 +153,6 @@ internal class RouterPage : BasePager() {
 
         }
 
-    }
-
-    fun initEffect() {
-        // 监听kisstate
-        watch(kisContext, { counter.count }) { newV, preV ->
-            println("kissLog count change: ${newV}")
-        }
-        // 监听kisstateList
-        watch(kisContext, { counter.list }){ newV, preV ->
-            println("kissLog list change: ${newV}")
-        }
-        // 监听computed值
-        watch(kisContext, { doudleCount }){ newV, preV ->
-            println("kissLog doudleCount change: ${newV}")
-        }
-        // 监听多个变量
-        watch(kisContext, {
-            listOf(counter.count ,counter.list)
-        }) { newV, preV ->
-            println("kissLog count or list change: ${newV}")
-        }
     }
 
     override fun created() {
