@@ -275,12 +275,17 @@ watch(kisContext, {
 ## 生命周期管理 ⚠️（非常重要）
 
 `computed` 和 `watch` **不会自动销毁**，
-必须在 Page / Component 销毁时手动释放：
+必须在 Page / Component 销毁时手动释放，例如：
 
 ```kotlin
 override fun pageWillDestroy() {
     kisContext.dispose()
     super.pageWillDestroy()
+}
+
+override fun viewDestroyed() {
+    kisContext.dispose()
+    super.viewDestroyed()
 }
 ```
 

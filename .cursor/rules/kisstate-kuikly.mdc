@@ -1,0 +1,54 @@
+---
+description: 使用 kisstate 进行 Kuikly 状态管理的约定
+alwaysApply: true
+---
+
+# kisstate 使用约定（Kuikly）
+
+- **核心 API**
+  - 优先使用 `kisstate`、`kisstateList`、`computed`、`watch` 与 `KisContext`。
+
+- **状态声明**
+  - 建议将业务状态集中在单独的数据类/状态容器中（例如 `class XxxState { ... }`），并通过稳定的引用在各处复用，而不是到处散落临时变量。
+  - 在 Kuikly Page / 组件内部不要随意新建多个同类状态容器实例，除非明确需要多份独立状态。
+
+- **KisContext 与生命周期（重点：dispose 必须调用）**
+  - 在每个 Page / 组件内部各自创建 `private val kisContext = KisContext()`。
+  - **所有** `computed` 和 `watch` 都必须绑定到对应的 `kisContext`，禁止使用“裸的”全局 `computed` / `watch`。
+  - 在 Page 中覆盖 `pageWillDestroy()`，在组件中覆盖 `viewDestroyed()`，**必须**统一调用 `kisContext.dispose()` 释放监听：
+    ```kotlin
+    override fun pageWillDestroy() {
+        kisContext.dispose()
+        super.pageWillDestroy()
+    }
+
+    override fun viewDestroyed() {
+        kisContext.dispose()
+        super.viewDestroyed()
+    }
+    ```
+  - AI 在新增 `computed` / `watch` 时，务必确认当前作用域已有 `kisContext`；没有则优先补充，并同时保证对应的销毁函数中调用 `kisContext.dispose()`。
+
+- **computed 使用**
+  - 使用形如 `val doubleCount by computed(kisContext) { counter.count * 2 }`。
+  - 避免在 `computed` 里做副作用（网络请求、写日志等），副作用统一放在 `watch` 中。
+
+- **watch 使用**
+  - 典型写法：`watch(kisContext, { counter.count }) { newV, oldV -> ... }`。
+  - 监听多个依赖时使用 `listOf(...)`：`watch(kisContext, { listOf(counter.count, counter.list) }) { _, _ -> ... }`。
+  - AI 不应在 `watch` 回调里直接修改被监听的同一状态，除非明确需要且能避免死循环。
+
+- **kisstateList 与 vfor**
+  - `kisstateList` 在 `vfor` 中必须调用 `toObservableList()`：
+    ```kotlin
+    vfor({ counter.list.toObservableList() }) { item ->
+        Text { attr { text(item) } }
+    }
+    ```
+  - AI 在为列表补 UI 时，务必使用上述形式，而不是直接把 `kisstateList` 传给 `vfor`。
+
+- **组件场景**
+  - 组件内部如使用 kisstate 相关能力，应：
+    - 使用自身的 `KisContext`。
+    - 在 `created()` 中初始化副作用（调用 `initEffect()` 等）。
+    - 在 `viewDestroyed()` 中 `kisContext.dispose()` 释放监听。

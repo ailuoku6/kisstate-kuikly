@@ -6,6 +6,7 @@ import com.tencent.kuikly.core.base.*
 import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.compose.Button
 import com.ailuoku6.kisstateSample.base.BasePager
+import com.ailuoku6.kisstateSample.components.kissCompTest
 import com.ailuoku6.kuiklyKisstate.KisContext
 import com.ailuoku6.kuiklyKisstate.computed
 import com.ailuoku6.kuiklyKisstate.kisstate
@@ -25,6 +26,8 @@ val counter = Counter()
 internal class RouterPage : BasePager() {
 
     val kisContext = KisContext()
+
+    var showChild by kisstate(true)
 
     val doudleCount by computed(kisContext) {
         counter.count * 2
@@ -105,6 +108,23 @@ internal class RouterPage : BasePager() {
                             counter.count ++;
                         }
                     }
+                }
+
+                Button {
+                    attr {
+                        titleAttr { text(if (ctx.showChild) "hide child" else "show child") }
+                        height(30f)
+                        backgroundColor(Color.GREEN)
+                    }
+                    event {
+                        click {
+                            ctx.showChild = !ctx.showChild
+                        }
+                    }
+                }
+
+                vif({ ctx.showChild }) {
+                    ctx.kissCompTest { }
                 }
 
                 Button {
