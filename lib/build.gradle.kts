@@ -16,7 +16,7 @@ val namespace = "io.github.ailuoku6"
 
 /* ---------- Publishing ---------- */
 group = "io.github.ailuoku6.kisstate"
-version = System.getenv("kuiklyBizVersion") ?: "1.0.8"
+version = System.getenv("kuiklyBizVersion") ?: "1.1.0"
 
 fun getPageName(): String {
     return (project.properties[KEY_PAGE_NAME] as? String) ?: ""
