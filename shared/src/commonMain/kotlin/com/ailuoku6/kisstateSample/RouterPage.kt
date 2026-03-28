@@ -6,7 +6,7 @@ import com.tencent.kuikly.core.base.*
 import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.compose.Button
 import com.ailuoku6.kisstateSample.base.BasePager
-import com.ailuoku6.kisstateSample.components.kissCompTest
+import com.ailuoku6.kisstateSample.components.KissCompTest
 import com.ailuoku6.kuiklyKisstate.KisContext
 import com.ailuoku6.kuiklyKisstate.computed
 import com.ailuoku6.kuiklyKisstate.kisstate
@@ -124,7 +124,7 @@ internal class RouterPage : BasePager() {
                 }
 
                 vif({ ctx.showChild }) {
-                    ctx.kissCompTest { }
+                    KissCompTest { }
                 }
 
                 Button {

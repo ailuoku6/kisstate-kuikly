@@ -5,13 +5,13 @@ import com.tencent.kuikly.core.base.ComposeAttr
 import com.tencent.kuikly.core.base.ComposeEvent
 import com.tencent.kuikly.core.base.ViewBuilder
 import com.tencent.kuikly.core.base.ViewContainer
-import com.tencent.kuikly.core.views.Color
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.ailuoku6.kisstateSample.counter
 import com.ailuoku6.kuiklyKisstate.KisContext
 import com.ailuoku6.kuiklyKisstate.computed
 import com.ailuoku6.kuiklyKisstate.watch
+import com.tencent.kuikly.core.base.Color
 
 internal class kissCompTestView: ComposeView<kissCompTestViewAttr, kissCompTestViewEvent>() {
 
@@ -75,6 +75,6 @@ internal class kissCompTestViewEvent : ComposeEvent() {
     
 }
 
-internal fun ViewContainer<*, *>.kissCompTest(init: kissCompTestView.() -> Unit) {
+internal fun ViewContainer<*, *>.KissCompTest(init: kissCompTestView.() -> Unit) {
     addChild(kissCompTestView(), init)
 }

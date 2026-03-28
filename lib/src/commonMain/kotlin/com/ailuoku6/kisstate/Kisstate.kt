@@ -180,13 +180,11 @@ class KisstateObservableList<T> {
     }
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: MutableList<T>) {
-        value.clear()
-        value.addAll(value)
+        this.value.clear()
+        this.value.addAll(value)
         dep.notifyChange()
     }
 }
-
-
 
 fun <T : Any> kisstateList(): KisstateObservableList<T> {
     return KisstateObservableList<T>()
@@ -248,16 +246,19 @@ fun <T> computed(context: KisContext, getter: () -> T): Computed<T> {
     return c
 }
 
+// ---------------------------------------------------------
+// 修复后的 Watch：根除 NPE 隐患
+// ---------------------------------------------------------
 class Watch<T>(
     private val source: () -> T,
     private val callback: (T, T) -> Unit
 ) : Watcher {
-    private var oldValue: T? = null
+    private var oldValue: T
     private val deps = mutableListOf<Dep>()
 
     init {
         DepContext.pushTarget(this)
-        oldValue = source()
+        oldValue = source() // 在初始化时就赋初值，彻底去掉 T? 和 !!
         DepContext.popTarget()
     }
 
@@ -269,7 +270,7 @@ class Watch<T>(
 
         // KissListProxy实例不会变，所以加个逻辑绕过比较
         if (newValue !== oldValue || newValue is KissListProxy<*>) {
-            callback(newValue, oldValue!!)
+            callback(newValue, oldValue)
             oldValue = newValue
         }
     }
